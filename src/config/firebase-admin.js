@@ -3,9 +3,19 @@ const admin = require('firebase-admin');
 const initializeFirebaseAdmin = () => {
   if (admin.apps.length === 0) {
     try {
-      const privateKey = process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY
-        ?.replace(/\\n/g, '\n')
-        ?.trim();
+      let privateKey = process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY;
+
+      if (!privateKey) {
+        throw new Error('FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY is not set!');
+      }
+
+      // Handle all escape variations from Render
+      privateKey = privateKey.replace(/\\n/g, '\n').trim();
+
+      // Verify key format
+      if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+        throw new Error('Private key format is invalid!');
+      }
 
       admin.initializeApp({
         credential: admin.credential.cert({
@@ -23,10 +33,10 @@ const initializeFirebaseAdmin = () => {
         }),
       });
 
-      console.log('Firebase Admin initialized via environment variables');
+      console.log('✅ Firebase Admin initialized successfully');
     } catch (error) {
-      console.error('Firebase Admin initialization error:', error.message);
-      throw error;
+      console.error('❌ Firebase Admin initialization error:', error.message);
+      throw error; // This will show in Render logs
     }
   }
 };
