@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Serve static files from the frontend
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, './dist')));
 
 // API Routes
 app.get('/api/health', (req, res) => {
