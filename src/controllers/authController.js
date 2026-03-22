@@ -23,14 +23,28 @@ const loginGuest = async (req, res) => {
 
         // If no user was found, create a new guest user
         if (!user) {
-            // Generate a new guestId if one wasn't provided or if the provided one was invalid
-            const newGuestId = guestId || uuidv4();
-            
-            user = await User.create({
-                isGuest: true,
-                guestId: newGuestId,
-                name: 'Guest Player ' + Math.floor(1000 + Math.random() * 9000), // Random default name like "Guest Player 4123"
-            });
+            try {
+                // Generate a new guestId if one wasn't provided or if the provided one was invalid
+                const newGuestId = guestId || uuidv4();
+                
+                user = await User.create({
+                    isGuest: true,
+                    guestId: newGuestId,
+                    name: 'Guest Player ' + Math.floor(1000 + Math.random() * 9000), // Random default name like "Guest Player 4123"
+                });
+            } catch (createError) {
+                // Handle race condition: if another request created the user with the same guestId
+                // between our findOne and create calls.
+                if (createError.code === 11000 && guestId) {
+                    console.log(`Race condition hit for guestId: ${guestId}. Fetching existing user.`);
+                    user = await User.findOne({ guestId });
+                    if (!user) {
+                        throw createError; // Rethrow if we still can't find it or it's a different duplicate
+                    }
+                } else {
+                    throw createError;
+                }
+            }
         }
 
         // Generate token

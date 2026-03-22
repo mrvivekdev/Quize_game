@@ -15,9 +15,7 @@ app.use(cors({
         "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:4545",
-        "https://quiz-game-frontend-1.onrender.com",
-        "https://player-games-etwpeyur5-mrvivekdevs-projects.vercel.app",
-        "https://player-games-backend.vercel.app/"
+        "https://quize-game-h03k.onrender.com/"
     ],
     credentials: true
 }));

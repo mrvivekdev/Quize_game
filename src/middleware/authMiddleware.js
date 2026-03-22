@@ -33,8 +33,13 @@ const protect = async (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error('Auth Error:', error.message);
-        return res.status(401).json({ message: 'Not authorized, token failed' });
+        // Detailed error logging specifically for "invalid signature" issues
+        console.error(`Auth Error: [${error.name}] ${error.message}`);
+        
+        return res.status(401).json({ 
+            message: 'Not authorized, token failed',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+        });
     }
 };
 
